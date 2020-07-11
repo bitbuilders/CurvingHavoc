@@ -24,6 +24,7 @@ public class HavocMovement : MonoBehaviour
     public float SpeedFactor { get { return m_velocity.sqrMagnitude / (m_maxSpeed * m_maxSpeed * ACCEL_FACTOR); } }
     public float InputStrength { get; set; }
     public bool Dashing { get; private set; }
+    public bool IsTesting { get; set; }
 
 
     Rigidbody2D m_rigidbody2D = null;
@@ -47,7 +48,7 @@ public class HavocMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (Dashing) return;
+        if (Dashing || !IsTesting) return;
 
         float acc = m_accel * ACCEL_FACTOR;
         m_velocity += InputDirection * InputStrength * acc * Time.deltaTime;

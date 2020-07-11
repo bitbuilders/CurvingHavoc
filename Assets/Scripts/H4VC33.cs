@@ -1,50 +1,63 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class H4VC33 : MonoBehaviour
 {
-    [Header("Constants")]
-    [SerializeField, Range(0.0f, 100.0f)] float m_constantSpin = 5.0f;
-    [SerializeField, Range(0.0f, 100.0f)] float m_constantForce = 5.0f;
+    [Header("Spin"), Space(10)]
+    [SerializeField, Range(0.0f, 720.0f)] float m_minSpin = 5.0f;
+    [SerializeField, Range(0.0f, 720.0f)] float m_maxSpin = 60.0f;
 
-    [Header("Initial"), Space(10)]
-    [SerializeField, Range(0.0f, 100.0f)] float m_initialSpinBurst = 15.0f;
+    [Header("Speed"), Space(0)]
+    [SerializeField, Range(0.0f, 100.0f)] float m_minForce = 5.0f;
+    [SerializeField, Range(0.0f, 100.0f)] float m_maxForce = 40.0f;
 
-    [Header("Restraints"), Space(10)]
-    [SerializeField, Range(0.0f, 50.0f)] float m_maxSpeed = 10.0f;
-    [SerializeField, Range(0.0f, 1000.0f)] float m_maxTorque = 500.0f;
+    [Header("Follow"), Space(0)]
+    [SerializeField, Range(0.0f, 720.0f)] float m_minChase = 5.0f;
+    [SerializeField, Range(0.0f, 720.0f)] float m_maxChase = 60.0f;
+
+    [Header("Abilities"), Space(10)]
+    [SerializeField, Range(0.0f, 20.0f)] float m_minActiveDuration = 5.0f;
+    [SerializeField, Range(0.0f, 20.0f)] float m_maxActiveDuration = 10.0f;
+    [SerializeField, Range(0.0f, 20.0f)] float m_inactiveDuration = 5.0f;
 
     [Header("Die"), Space(10)]
     [SerializeField, Range(0.0f, 10.0f)] float m_dieTime = 2.0f;
     [SerializeField, Range(0.0f, 10.0f)] float m_endDrag = 2.0f;
     [SerializeField, Range(0.0f, 10.0f)] float m_endAngularDrag = 2.0f;
 
-    [Header("Bounce"), Space(10)]
-    [SerializeField, Range(0.0f, 100.0f)] float m_bounceSpinBurst = 15.0f;
-    [SerializeField, Range(0.0f, 100.0f)] float m_maxBounceForce = 40.0f;
-    [SerializeField, Range(0.0f, 100.0f)] float m_minBounceForce = 5.0f;
-
     public DXT3R Owner { get; set; }
-    public float BounceForce { get { return Mathf.Lerp(m_minBounceForce, m_maxBounceForce, Level / MaxLevel); } }
     public float Lifetime { get; set; }
     public float Power { get; private set; } = 1.0f;
     public float InversePower { get { return 1.0f - Power; } }
     public float SpinDirection { get; set; } = 1.0f;
     public int Level { get; set; }
     public int MaxLevel { get; set; } = 20;
+    public bool IsWeak { get; private set; }
 
-    PolygonCollider2D m_collider = null;
+    public float Spin { get { return GetValueFromRange(m_minSpin, m_maxSpin); } }
+    public float Force { get { return GetValueFromRange(m_minForce, m_maxForce); } }
+    public float Chase { get { return GetValueFromRange(m_minChase, m_maxChase); } }
+
+
+    Animator m_animator = null;
     Rigidbody2D m_rigidBody2D = null;
+    PolygonCollider2D m_collider = null;
     float m_life = 0.0f;
+    float m_nextDeactivation = 0.0f;
+    float m_activeTime = 0.0f;
+    float m_inactiveTime = 0.0f;
+    float m_angle = 0.0f;
 
     void Awake()
     {
         Owner = FindObjectOfType<DXT3R>();
-        m_collider = GetComponent<PolygonCollider2D>();
+        m_animator = GetComponentInChildren<Animator>();
         m_rigidBody2D = GetComponent<Rigidbody2D>();
-        Lifetime = 60;
+        m_collider = GetComponentInChildren<PolygonCollider2D>();
 
+        m_nextDeactivation = m_maxActiveDuration;
         StartCoroutine(Lifespan());
     }
 
@@ -55,6 +68,12 @@ public class H4VC33 : MonoBehaviour
             m_life += Time.deltaTime;
 
             yield return null;
+        }
+
+        if (!IsWeak)
+        {
+            IsWeak = true;
+            Deactivate();
         }
 
         float dt = 0.0f;
@@ -72,44 +91,81 @@ public class H4VC33 : MonoBehaviour
         }
 
         Power = 0.0f;
+        m_rigidBody2D.freezeRotation = false;
+    }
+
+    private void Update()
+    {
+        if (Power <= 0.0f) return;
+
+        float prevTime = m_activeTime;
+        m_activeTime += Time.deltaTime;
+        if (m_activeTime >= m_nextDeactivation)
+        {
+            if (prevTime < m_nextDeactivation)
+            {
+                Deactivate();
+                IsWeak = true;
+            }
+
+            m_inactiveTime += Time.deltaTime;
+            if (m_inactiveTime >= m_inactiveDuration)
+            {
+                Activate();
+                ResetActive();
+                IsWeak = false;
+            }
+        }
     }
 
     private void FixedUpdate()
     {
-        m_rigidBody2D.AddTorque(m_constantSpin * SpinDirection * Power * Time.deltaTime);
+        if (Power <= 0.0f) return;
 
-        Vector2 dir = Owner.gameObject.transform.position - transform.position;
-        Vector2 force = dir.normalized * m_constantForce * Power * Time.deltaTime;
-        m_rigidBody2D.AddForce(force);
+        m_angle += Spin * SpinDirection * Power * Time.deltaTime;
+        m_rigidBody2D.SetRotation(m_angle);
 
-        if (m_rigidBody2D.angularVelocity > m_maxTorque)
-        {
-            m_rigidBody2D.angularVelocity = m_maxTorque;
-        }
-
-        if (m_rigidBody2D.velocity.sqrMagnitude > m_maxSpeed * m_maxSpeed)
-        {
-            m_rigidBody2D.velocity = m_rigidBody2D.velocity.normalized * m_maxSpeed;
-        }
+        m_rigidBody2D.velocity = m_rigidBody2D.velocity.normalized * Force * Power;
+        float a = Chase * Mathf.Deg2Rad * Time.deltaTime;
+        m_rigidBody2D.velocity = Vector3.RotateTowards(m_rigidBody2D.velocity, Owner.transform.position - transform.position, a, 0.0f);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        Vector2 normal = collision.contacts[0].normal;
-        Vector2 force = normal * BounceForce;
-
-        m_rigidBody2D.AddForceAtPosition(force * Power,  collision.contacts[0].point, ForceMode2D.Impulse);
-        m_rigidBody2D.AddTorque(m_bounceSpinBurst * Power, ForceMode2D.Impulse);
-    }
-
-    public void Throw(Vector2 force)
+    public void Throw(Vector2 force, float colliderDelay)
     {
         m_rigidBody2D.AddForce(force, ForceMode2D.Impulse);
-        m_rigidBody2D.AddTorque(m_initialSpinBurst * SpinDirection);
+        m_collider.isTrigger = true;
+    }
+
+    IEnumerator ColliderEnable(float time)
+    {
+        yield return new WaitForSeconds(time);
+        m_collider.isTrigger = false;
     }
 
     public void Pickup()
     {
         Destroy(gameObject);
+    }
+
+    void Activate()
+    {
+        m_animator.SetTrigger("Activate");
+    }
+
+    void Deactivate()
+    {
+        m_animator.SetTrigger("Deactivate");
+    }
+
+    void ResetActive()
+    {
+        m_nextDeactivation = Random.Range(m_minActiveDuration, m_maxActiveDuration);
+        m_activeTime = 0.0f;
+        m_inactiveTime = 0.0f;
+    }
+
+    float GetValueFromRange(float min, float max)
+    {
+        return Mathf.Lerp(min, max, (float)Level / (float)MaxLevel);
     }
 }
