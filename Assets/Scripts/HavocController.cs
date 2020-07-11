@@ -4,13 +4,18 @@ using UnityEngine;
 
 public class HavocController : MonoBehaviour
 {
+    [SerializeField, Range(0.0f, 10.0f)] float m_dashDistance = 2.0f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_dashTime = 0.5f;
+
     HavocMovement m_havocMovement = null;
+    HavocAnimator m_havocAnimator = null;
     bool m_canDashFromCharge = false;
     bool m_canThrowFromCharge = false;
 
     private void Awake()
     {
         m_havocMovement = GetComponent<HavocMovement>();
+        m_havocAnimator = GetComponent<HavocAnimator>();
         m_canDashFromCharge = true;
         m_canThrowFromCharge = true;
     }
@@ -27,6 +32,8 @@ public class HavocController : MonoBehaviour
         if (dashButton || (!Mathf.Approximately(dashCharge, 0.0f) && m_canDashFromCharge))
         {
             print("Dash!");
+            m_havocMovement.Dash(m_dashDistance, m_dashTime);
+            m_havocAnimator.Slide(m_dashTime);
             m_canDashFromCharge = false;
         }
         else if (Mathf.Approximately(dashCharge, 0.0f))

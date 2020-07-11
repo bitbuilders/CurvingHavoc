@@ -7,6 +7,7 @@ public class HavocAnimator : MonoBehaviour
 
     HavocMovement m_havocMovement = null;
     Animator m_animator = null;
+    Coroutine m_slideRoutine = null;
     Vector2 m_lastDirection = Vector2.down;
 
     void Awake()
@@ -17,11 +18,9 @@ public class HavocAnimator : MonoBehaviour
 
     void Update()
     {
-        if (!Mathf.Approximately(m_havocMovement.InputDirection.x, 0.0f) ||
-            !Mathf.Approximately(m_havocMovement.InputDirection.y, 0.0f))
+        if (!m_havocMovement.Dashing)
         {
-            // Keep track of last direction for Idle
-            m_lastDirection = m_havocMovement.InputDirection;
+            m_lastDirection = m_havocMovement.LastInputDirection;
         }
 
         if (Mathf.Approximately(m_lastDirection.magnitude, 1.0f) && Mathf.Abs(m_lastDirection.y) > 0.0f)
@@ -36,8 +35,22 @@ public class HavocAnimator : MonoBehaviour
         m_animator.SetFloat("Speed", m_havocMovement.SpeedFactor);
     }
 
-    public void Slide()
+    public void Slide(float duration)
     {
-        m_animator.SetTrigger("Slide");
+        m_animator.SetBool("Slide", true);
+
+        if (m_slideRoutine != null)
+        {
+            StopCoroutine(m_slideRoutine);
+        }
+
+        m_slideRoutine = StartCoroutine(SlideTimer(duration));
+    }
+
+    IEnumerator SlideTimer(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        m_animator.SetBool("Slide", false);
+        m_slideRoutine = null;
     }
 }
