@@ -17,6 +17,7 @@ public class HavocController : MonoBehaviour
     [SerializeField, Range(0.0f, 100.0f)] float m_maxThrowForce = 20.0f;
     [SerializeField, Range(0.0f, 10.0f)] float m_throwLinger = 1.5f;
     [SerializeField, Range(0.0f, 10.0f)] float m_throwDecay = 1.5f;
+    [SerializeField, Range(0.0f, 30.0f)] float m_mercyThrow = 12.0f;
 
     public bool IsTesting { get; set; }
     public float ThrowPower 
@@ -36,7 +37,8 @@ public class HavocController : MonoBehaviour
     HavocMovement m_havocMovement = null;
     HavocAnimator m_havocAnimator = null;
     float m_throwTime = 0.0f;
-    float m_lastDashTime = float.MinValue;
+    float m_lastDashTime = -100.0f;
+    float m_mercyTime = 0.0f;
     bool m_thrown = false;
     bool m_canDashFromCharge = false;
     bool m_canThrowFromCharge = false;
@@ -62,10 +64,13 @@ public class HavocController : MonoBehaviour
         float dashCharge = Input.GetAxis("DashCharge");
         if (dashButton || (!Mathf.Approximately(dashCharge, 0.0f) && m_canDashFromCharge))
         {
-            print("Dash!");
-            m_havocMovement.Dash(m_dashDistance, m_dashTime);
-            m_havocAnimator.Slide(m_dashTime);
-            m_canDashFromCharge = false;
+            if (Time.time - m_lastDashTime >= m_dashCooldown)
+            {
+                m_lastDashTime = Time.time;
+                m_havocMovement.Dash(m_dashDistance, m_dashTime);
+                m_havocAnimator.Slide(m_dashTime);
+                m_canDashFromCharge = false;
+            }
         }
         else if (Mathf.Approximately(dashCharge, 0.0f))
         {
@@ -79,7 +84,6 @@ public class HavocController : MonoBehaviour
             float throwCharge = Input.GetAxis("ThrowCharge");
             if (throwButton || (!Mathf.Approximately(throwCharge, 0.0f) && m_canThrowFromCharge))
             {
-                print("Throw!");
                 // Do throw FX
 
             }
@@ -102,16 +106,24 @@ public class HavocController : MonoBehaviour
                 if (m_throwTime < 0.0f) m_throwTime = 0.0f;
             }
 
+            m_mercyTime += Time.deltaTime;
+            if (!m_thrown)
+            {
+                if (m_mercyTime >= m_mercyThrow)
+                {
+                    Throw(true);
+                }
+            }
+
             HavocNavigator.Instance.Power = ThrowPower;
         }
     }
 
-    void Throw()
+    void Throw(bool random = false)
     {
-        if (m_throwTime < m_minCharge)
+        if (m_throwTime < m_minCharge && !random)
         {
             // Give them a funny message???
-            print("FAIL");
             return;
         }
 
@@ -119,11 +131,14 @@ public class HavocController : MonoBehaviour
         m_throwTime = 0.0f;
         HavocNavigator.Instance.Power = 0.0f;
 
-        float force = Mathf.Lerp(m_minThrowForce, m_maxThrowForce, ThrowPower);
+        float p = random ? 0.0f : ThrowPower;
+        float force = Mathf.Lerp(m_minThrowForce, m_maxThrowForce, p);
 
         // Need direction
         m_dXT3R.Prototype.gameObject.SetActive(true);
         m_dXT3R.Prototype.transform.position = transform.position;
-        m_dXT3R.Prototype.Throw(HavocNavigator.Instance.CurrentDir, force, m_throwLinger, m_throwDecay, 0.1f);
+
+        Vector2 dir = (random) ? Random.insideUnitCircle.normalized : HavocNavigator.Instance.CurrentDir;
+        m_dXT3R.Prototype.Throw(dir, force, m_throwLinger, m_throwDecay, 0.1f);
     }
 }

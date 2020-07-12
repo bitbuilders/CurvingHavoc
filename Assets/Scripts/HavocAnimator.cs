@@ -6,18 +6,26 @@ public class HavocAnimator : MonoBehaviour
 {
 
     HavocMovement m_havocMovement = null;
+    DXT3R m_dxt3R = null;
     Animator m_animator = null;
     Coroutine m_slideRoutine = null;
     Vector2 m_lastDirection = Vector2.down;
 
     void Awake()
     {
+        m_dxt3R = GetComponent<DXT3R>();
         m_havocMovement = GetComponent<HavocMovement>();
         m_animator = GetComponent<Animator>();
     }
 
     void Update()
     {
+        if (!m_dxt3R.IsAlive)
+        {
+            m_animator.SetTrigger("Slide");
+            return;
+        }
+
         if (!m_havocMovement.Dashing)
         {
             m_lastDirection = m_havocMovement.LastInputDirection;

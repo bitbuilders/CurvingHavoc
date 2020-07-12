@@ -56,8 +56,9 @@ MonoBehaviour:
   m_inactiveDuration: 7.5
   m_bonusForceMultiplier: 2
   m_hitDuration: 0.5
-  m_hitFalloff: 1
   m_hitLifeDecrease: 10
+  m_hitInvincibility: 0.75
+  m_playerInvincibility: 0.5
   m_dieTime: 2
   m_endDrag: 2
   m_endAngularDrag: 2
@@ -178,7 +179,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 11
+  m_SortingOrder: 4
   m_Sprite: {fileID: 6946876648732156625, guid: 9f0597d7c972c4340a0823e078bcdfd5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

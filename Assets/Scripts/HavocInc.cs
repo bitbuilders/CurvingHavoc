@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HavocInc : Singleton<HavocInc>
 {
@@ -9,6 +10,8 @@ public class HavocInc : Singleton<HavocInc>
     [SerializeField] H4VC33 m_prototype = null;
     [SerializeField, Range(0.0f, 10.0f)] float m_endOfWaveDelay = 3.0f;
     [SerializeField, Range(0.0f, 10.0f)] float m_deathDelay = 3.0f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_titleEndDelay = 1.0f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_firstDialogueDelay = 3.0f;
 
     public DXT3R CurrentTester { get; private set; }
     public H4VC33 CurrentPrototype { get; private set; }
@@ -17,6 +20,11 @@ public class HavocInc : Singleton<HavocInc>
     public string WaveDialogue { get { return m_waves[Wave].Dialogue; } }
 
     int m_currentIteration = 0;
+    float m_deadTime = 0.0f;
+    float m_winTime = 0.0f;
+    int m_tip = 0;
+    bool m_gameover = false;
+    bool m_dead = false;
 
     private void Awake()
     {
@@ -26,14 +34,42 @@ public class HavocInc : Singleton<HavocInc>
             return;
         }
         DontDestroyOnLoad(gameObject);
+        m_currentIteration = 0;
+        SceneManager.sceneLoaded += OnSceneLoad;
 
+        m_currentIteration++;
         CreateTester();
-        BeginTest();
     }
 
     private void Start()
     {
         HavocNarrative.Instance.PlayTitle(true);
+    }
+
+    private void Update()
+    {
+        if (m_gameover) return;
+
+        if (!CurrentTester.IsAlive)
+        {
+            m_deadTime += Time.deltaTime;
+            if (m_deadTime >= m_deathDelay)
+            {
+                StartCoroutine(Restart());
+                m_gameover = true;
+                m_dead = true;
+            }
+        }
+        else if (!CurrentPrototype.IsAlive)
+        {
+            m_winTime += Time.deltaTime;
+            if (m_winTime >= m_endOfWaveDelay)
+            {
+                StartCoroutine(Progress());
+                m_gameover = true;
+                m_dead = false;
+            }
+        }
     }
 
     public void CreateTester(bool assignPrototype = true, bool demo = false)
@@ -55,12 +91,7 @@ public class HavocInc : Singleton<HavocInc>
         CurrentPrototype.gameObject.SetActive(false);
         CurrentPrototype.transform.position = CurrentTester.transform.position;
 
-        if (!demo)
-        {
-            m_currentIteration++;
-        }
-
-        HavocWave wave = m_waves[m_currentIteration];
+        HavocWave wave = m_waves[Wave];
         CurrentPrototype.Lifetime = wave.Duration;
         CurrentPrototype.Level = wave.Difficulty;
         CurrentPrototype.MaxLevel = HavocWave.MAX_LEVEL;
@@ -74,10 +105,91 @@ public class HavocInc : Singleton<HavocInc>
         CurrentTester.StartTesting();
     }
 
-    public void ResetWaves()
+    public void Reset()
     {
-        m_currentIteration = 0;
+
     }
 
+    public void OnTitleFinish()
+    {
+        StartCoroutine(TitleToDialogue());
+    }
 
+    IEnumerator TitleToDialogue()
+    {
+        BeginTest();
+
+        yield return new WaitForSeconds(m_titleEndDelay);
+
+        float delay = (Wave <= 1) ? m_firstDialogueDelay : -1.0f;
+        HavocNarrative.Instance.PlayDialogue(delay);
+    }
+
+    public void OnDialogueFinish()
+    {
+
+    }
+
+    IEnumerator Restart()
+    {
+        float tintTime = 1.0f;
+        HavocCanvas.Instance.FadeTint(true, tintTime, null);
+
+        yield return new WaitForSeconds(tintTime + 0.5f);
+
+        SceneManager.LoadScene(0, LoadSceneMode.Single);
+    }
+
+    IEnumerator Progress()
+    {
+        float tintTime = 1.0f;
+        HavocCanvas.Instance.FadeTint(true, tintTime, null);
+        m_currentIteration++;
+
+        yield return new WaitForSeconds(tintTime + 0.5f);
+
+        if (Wave >= m_waves.Count - 1)
+        {
+            SceneManager.LoadScene(1, LoadSceneMode.Single);
+            SceneManager.sceneLoaded -= OnSceneLoad;
+            Destroy(gameObject);
+        }
+        else
+        {
+            SceneManager.LoadScene(0, LoadSceneMode.Single);
+        }
+    }
+
+    void NewTester()
+    {
+        Destroy(CurrentTester.gameObject);
+        Destroy(CurrentPrototype.gameObject);
+        CreateTester();
+    }
+
+    void OnSceneLoad(Scene scene, LoadSceneMode mode)
+    {
+        if (!m_gameover) return;
+
+        StartCoroutine(OnLoad());
+    }
+
+    IEnumerator OnLoad()
+    {
+        yield return new WaitForSeconds(0.0f);
+
+        int tip = m_dead ? m_tip : -1;
+        if (m_dead)
+        {
+            Reset();
+        }
+        m_dead = false;
+
+        CreateTester();
+        HavocNarrative.Instance.PlayTitle(true, tip);
+        m_tip++;
+        m_gameover = false;
+        m_deadTime = 0.0f;
+        m_winTime = 0.0f;
+    }
 }

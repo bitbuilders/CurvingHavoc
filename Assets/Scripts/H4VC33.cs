@@ -27,6 +27,7 @@ public class H4VC33 : MonoBehaviour
     [SerializeField, Range(0.0f, 10.0f)] float m_hitDuration = 0.5f;
     [SerializeField, Range(0.0f, 100.0f)] float m_hitLifeDecrease = 10.0f;
     [SerializeField, Range(0.0f, 20.0f)] float m_hitInvincibility = 0.75f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_playerInvincibility = 0.75f;
 
     [Header("Die"), Space(10)]
     [SerializeField, Range(0.0f, 10.0f)] float m_dieTime = 2.0f;
@@ -61,6 +62,7 @@ public class H4VC33 : MonoBehaviour
     float m_inactiveTime = 0.0f;
     float m_angle = 0.0f;
     float m_lastHitTime = 0.0f;
+    float m_lastPlayerTime = 0.0f;
     bool m_spawnDeactivate = true;
 
     void Awake()
@@ -145,7 +147,7 @@ public class H4VC33 : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (Power <= 0.0f) return;
+        if (Power <= 0.0f || !Owner.IsAlive) return;
 
         if (collision.gameObject == Owner.gameObject)
         {
@@ -154,6 +156,7 @@ public class H4VC33 : MonoBehaviour
                 if (Owner.GetComponent<HavocMovement>().Dashing && Time.time - m_lastHitTime >= m_hitInvincibility)
                 {
                     m_lastHitTime = Time.time;
+                    m_lastPlayerTime = Time.time;
                     BonusForce = 0.0f;
                     BonusForce = Force * (m_bonusForceMultiplier - 1.0f);
                     BonusSpin = 2.0f;
@@ -171,9 +174,33 @@ public class H4VC33 : MonoBehaviour
             else
             {
                 // Damage player???
-
+                if (Time.time - m_lastPlayerTime >= m_playerInvincibility)
+                {
+                    m_lastPlayerTime = Time.time;
+                    Owner.Lives--;
+                    if (!Owner.IsAlive)
+                    {
+                        Owner.Kill(Owner.transform.position - transform.position);
+                    }
+                }
             }
         }
+    }
+
+    public void SetDirection(Vector2 dir)
+    {
+        float mag = m_rigidBody2D.velocity.magnitude;
+        m_rigidBody2D.velocity = dir.normalized * mag;
+    }
+
+    public void AddBonusForce(float force)
+    {
+        BonusForce = force;
+        if (m_bounceForceRoutine != null)
+        {
+            StopCoroutine(m_bounceForceRoutine);
+        }
+        m_bounceForceRoutine = StartCoroutine(ResetBonusForce(m_hitDuration, m_hitDuration));
     }
 
     public void Throw(Vector2 dir, float force, float bonusForceDuration, float bonusForceDecayTime, float colliderDelay)

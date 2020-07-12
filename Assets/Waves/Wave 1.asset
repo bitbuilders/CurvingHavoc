@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01e5ba157083db643bea775b409b0474, type: 3}
   m_Name: Wave 1
   m_EditorClassIdentifier: 
-  Title: Getting Started
-  Dialogue: 
+  Title: 'ID: DXT3R'
+  Dialogue: 'Test No. 5292 will now commence.
+
+    DXT3R, throw your boomerang;
+
+    and
+    please be careful.'
   Duration: 30
   Difficulty: 1

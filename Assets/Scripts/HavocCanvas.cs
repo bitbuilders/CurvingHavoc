@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class HavocCanvas : Singleton<HavocCanvas>
@@ -9,9 +11,46 @@ public class HavocCanvas : Singleton<HavocCanvas>
     [SerializeField] Image m_screenTint;
     [SerializeField] TMP_Text m_title;
     [SerializeField] HavocDialogue m_dialogue;
+    [SerializeField] GameObject m_pauseMenu;
+    [SerializeField] Button m_resume;
+    [SerializeField] Button m_cancel;
 
     public TMP_Text Title { get { return m_title; } }
     public HavocDialogue Dialogue { get { return m_dialogue; } }
+    public bool Paused { get; private set; }
+
+    private void Update()
+    {
+        if (Input.GetButtonDown("Cancel"))
+        {
+            if (HavocInc.Instance.CurrentTester.IsAlive && HavocInc.Instance.CurrentPrototype.IsAlive)
+            {
+                Pause(!Paused);
+            }
+        }
+    }
+
+    public void Pause(bool pause)
+    {
+        Paused = pause;
+        m_pauseMenu.SetActive(Paused);
+        Time.timeScale = Paused ? 0.0f : 1.0f;
+
+        if (Paused)
+        {
+            FindObjectOfType<EventSystem>(true).SetSelectedGameObject(m_cancel.gameObject);
+            FindObjectOfType<EventSystem>(true).SetSelectedGameObject(m_resume.gameObject);
+        }
+    }
+
+    public void Quit()
+    {
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 
     public void FadeTitle(bool fadeIn, float fadeTime, AnimationCurve fadeOverTime)
     {
@@ -39,13 +78,15 @@ public class HavocCanvas : Singleton<HavocCanvas>
         SetImageOpacity(m_screenTint, 1.0f);
     }
 
-    public void HideTitle(float textFadeTime, float tintFadeTime, float tintDelay)
+    public void HideTitle(float delay, float textFadeTime, float tintFadeTime, float tintDelay)
     {
-        StartCoroutine(ClearScreen(textFadeTime, tintFadeTime, tintDelay));
+        StartCoroutine(ClearScreen(delay, textFadeTime, tintFadeTime, tintDelay));
     }
 
-    IEnumerator ClearScreen(float textFadeTime, float tintFadeTime, float tintDelay)
+    IEnumerator ClearScreen(float delay, float textFadeTime, float tintFadeTime, float tintDelay)
     {
+        yield return new WaitForSeconds(delay);
+
         FadeTitle(false, textFadeTime, null);
 
         yield return new WaitForSeconds(tintDelay);

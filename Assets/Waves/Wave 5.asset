@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01e5ba157083db643bea775b409b0474, type: 3}
   m_Name: Wave 5
   m_EditorClassIdentifier: 
-  Title: The End?
-  Dialogue: 
-  Duration: 50
-  Difficulty: 10
+  Title: Last Stand
+  Dialogue: 'You really made it this far...
+
+    Everything is in ruins. Maybe you
+    can... *muffle*'
+  Duration: 90
+  Difficulty: 8

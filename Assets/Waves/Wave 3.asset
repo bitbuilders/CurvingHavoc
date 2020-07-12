@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Wave 3
   m_EditorClassIdentifier: 
   Title: Testing Limits
-  Dialogue: 
-  Duration: 40
-  Difficulty: 4
+  Dialogue: 'It''s about time we prove what this is really capable of.
+
+    Remember
+    that penguins can slide.'
+  Duration: 60
+  Difficulty: 5

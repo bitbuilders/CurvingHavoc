@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 5947507795837262342}
   - component: {fileID: 5947507795837262366}
   - component: {fileID: 5947507795837262338}
-  - component: {fileID: 5947507795837262365}
   - component: {fileID: 5947507795837262339}
   - component: {fileID: 5947507795837262336}
   m_Layer: 8
@@ -51,6 +50,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4294d61c8932d1641a2c01fce9d6d92c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_lives: 1
+  m_deathKnockback: 11
 --- !u!114 &5947507795837262364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80,6 +81,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dashDistance: 3
   m_dashTime: 0.3
+  m_dashCooldown: 0.5
   m_maxCharge: 5
   m_minCharge: 0.25
   m_maxForceThreshold: 0.2
@@ -87,6 +89,7 @@ MonoBehaviour:
   m_maxThrowForce: 10
   m_throwLinger: 1.5
   m_throwDecay: 1.5
+  m_mercyThrow: 25
 --- !u!114 &5947507795837262342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,22 +174,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!70 &5947507795837262365
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5947507795837262360}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 0fb97880a3c0eaf41adac4f1701904c5, type: 2}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.025}
-  m_Size: {x: 0.7, y: 0.95}
-  m_Direction: 0
 --- !u!70 &5947507795837262339
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

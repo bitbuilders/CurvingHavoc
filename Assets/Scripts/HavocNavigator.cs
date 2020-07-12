@@ -31,14 +31,6 @@ public class HavocNavigator : Singleton<HavocNavigator>
         SetLineOpacity(0.0f);
     }
 
-    private void Start()
-    {
-        Vector2 worldMouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 dir = worldMouse - (Vector2)HavocInc.Instance.CurrentTester.transform.position;
-        Dir = dir.normalized;
-        CurrentDir = Dir;
-    }
-
     private void LateUpdate()
     {
         if (Power <= 0.0f)

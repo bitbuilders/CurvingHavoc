@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Wave 2
   m_EditorClassIdentifier: 
   Title: Practice
-  Dialogue: 
-  Duration: 35
-  Difficulty: 2
+  Dialogue: 'Interesting...
+
+    I didn''t expect the boomerang to go rogue. Let''s
+    run another test'
+  Duration: 45
+  Difficulty: 3

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Wave 4
   m_EditorClassIdentifier: 
   Title: Exponential
-  Dialogue: 
-  Duration: 45
+  Dialogue: 'Wait... why are you still here?
+
+    You need to get out of here now!'
+  Duration: 75
   Difficulty: 6
