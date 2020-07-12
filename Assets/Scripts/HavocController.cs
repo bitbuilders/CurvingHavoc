@@ -14,8 +14,22 @@ public class HavocController : MonoBehaviour
     [SerializeField, Range(0.0f, 1.0f)] float m_maxForceThreshold = 0.5f;
     [SerializeField, Range(0.0f, 100.0f)] float m_minThrowForce = 10.0f;
     [SerializeField, Range(0.0f, 100.0f)] float m_maxThrowForce = 20.0f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_throwLinger = 1.5f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_throwDecay = 1.5f;
 
     public bool IsTesting { get; set; }
+    public float ThrowPower 
+    { 
+        get 
+        {
+            float chargeMax = m_maxCharge * m_maxForceThreshold;
+            if (chargeMax == 0.0f)
+            {
+                chargeMax = float.MinValue;
+            }
+            return Mathf.Clamp01(m_throwTime / chargeMax);
+        }
+    }
 
     DXT3R m_dXT3R = null;
     HavocMovement m_havocMovement = null;
@@ -24,7 +38,6 @@ public class HavocController : MonoBehaviour
     bool m_thrown = false;
     bool m_canDashFromCharge = false;
     bool m_canThrowFromCharge = false;
-    bool m_chargingThrow = false;
 
     private void Awake()
     {
@@ -65,7 +78,6 @@ public class HavocController : MonoBehaviour
             if (throwButton || (!Mathf.Approximately(throwCharge, 0.0f) && m_canThrowFromCharge))
             {
                 print("Throw!");
-                m_chargingThrow = true;
                 // Do throw FX
 
             }
@@ -79,9 +91,16 @@ public class HavocController : MonoBehaviour
             }
             else
             {
-                m_chargingThrow = false;
-                Throw();
+                if (m_throwTime > 0.0f)
+                {
+                    Throw();
+                }
+
+                m_throwTime -= Time.deltaTime * 2.0f;
+                if (m_throwTime < 0.0f) m_throwTime = 0.0f;
             }
+
+            HavocNavigator.Instance.Power = ThrowPower;
         }
     }
 
@@ -90,18 +109,19 @@ public class HavocController : MonoBehaviour
         if (m_throwTime < m_minCharge)
         {
             // Give them a funny message???
+            print("FAIL");
             return;
         }
 
-        float chargeMax = m_maxCharge * m_maxForceThreshold;
-        if (chargeMax == 0.0f)
-        {
-            chargeMax = float.MinValue;
-        }
+        m_thrown = true;
+        m_throwTime = 0.0f;
+        HavocNavigator.Instance.Power = 0.0f;
 
-        float power = Mathf.Clamp01(m_throwTime / chargeMax);
-        float force = Mathf.Lerp(m_minThrowForce, m_maxThrowForce, power);
-        
+        float force = Mathf.Lerp(m_minThrowForce, m_maxThrowForce, ThrowPower);
+
         // Need direction
+        m_dXT3R.Prototype.gameObject.SetActive(true);
+        m_dXT3R.Prototype.transform.position = transform.position;
+        m_dXT3R.Prototype.Throw(HavocNavigator.Instance.CurrentDir, force, m_throwLinger, m_throwDecay, 0.1f);
     }
 }

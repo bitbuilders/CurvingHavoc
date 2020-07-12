@@ -45,8 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7435121f159d9c94da3f7319fed9688d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_level: 0
-  m_minSpin: 30
+  m_minSpin: 90
   m_maxSpin: 220
   m_minForce: 5
   m_maxForce: 25
@@ -55,9 +54,37 @@ MonoBehaviour:
   m_minActiveDuration: 9
   m_maxActiveDuration: 12
   m_inactiveDuration: 7.5
+  m_bonusForceMultiplier: 2
+  m_hitDuration: 0.5
+  m_hitFalloff: 1
+  m_hitLifeDecrease: 10
   m_dieTime: 2
   m_endDrag: 2
   m_endAngularDrag: 2
+  m_bonusForceDecay:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.00038604625
+      value: 1.0048661
+      inSlope: -1.8307202
+      outSlope: -1.8307202
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.17866008
+    - serializedVersion: 3
+      time: 1
+      value: -0.00007294491
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!50 &4980966212510456524
 Rigidbody2D:
   serializedVersion: 4

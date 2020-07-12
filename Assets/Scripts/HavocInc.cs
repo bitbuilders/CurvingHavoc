@@ -22,6 +22,7 @@ public class HavocInc : Singleton<HavocInc>
         DontDestroyOnLoad(gameObject);
 
         CreateTester();
+        BeginTest();
     }
 
     public void CreateTester(bool assignPrototype = true, bool demo = false)
@@ -55,5 +56,10 @@ public class HavocInc : Singleton<HavocInc>
         CurrentPrototype.Owner = CurrentTester;
 
         CurrentTester.Prototype = CurrentPrototype;
+    }
+
+    public void BeginTest()
+    {
+        CurrentTester.StartTesting();
     }
 }

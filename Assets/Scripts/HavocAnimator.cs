@@ -23,12 +23,12 @@ public class HavocAnimator : MonoBehaviour
             m_lastDirection = m_havocMovement.LastInputDirection;
         }
 
-        if (Mathf.Approximately(m_lastDirection.magnitude, 1.0f) && Mathf.Abs(m_lastDirection.y) > 0.0f)
-        {
-            // Make moving up/down visually have priority
-            m_lastDirection.x = 0.5f * Mathf.Sign(m_lastDirection.x);
-            m_lastDirection.Normalize();
-        }
+        //if (Mathf.Approximately(m_lastDirection.magnitude, 1.0f) && Mathf.Abs(m_lastDirection.y) > 0.0f)
+        //{
+        //    // Make moving up/down visually have priority
+        //    m_lastDirection.x = 0.5f * Mathf.Sign(m_lastDirection.x);
+        //    m_lastDirection.Normalize();
+        //}
 
         m_animator.SetFloat("XDir", m_lastDirection.x);
         m_animator.SetFloat("YDir", m_lastDirection.y);

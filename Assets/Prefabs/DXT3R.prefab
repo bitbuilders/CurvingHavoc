@@ -80,6 +80,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dashDistance: 3
   m_dashTime: 0.3
+  m_maxCharge: 5
+  m_minCharge: 0.25
+  m_maxForceThreshold: 0.2
+  m_minThrowForce: 5
+  m_maxThrowForce: 10
+  m_throwLinger: 1.5
+  m_throwDecay: 1.5
 --- !u!114 &5947507795837262342
 MonoBehaviour:
   m_ObjectHideFlags: 0
