@@ -7,9 +7,14 @@ public class HavocInc : Singleton<HavocInc>
     [SerializeField] List<HavocWave> m_waves = null;
     [SerializeField] DXT3R m_testSubject = null;
     [SerializeField] H4VC33 m_prototype = null;
+    [SerializeField, Range(0.0f, 10.0f)] float m_endOfWaveDelay = 3.0f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_deathDelay = 3.0f;
 
     public DXT3R CurrentTester { get; private set; }
     public H4VC33 CurrentPrototype { get; private set; }
+    public int Wave { get { return m_currentIteration; } }
+    public string WaveTitle { get { return m_waves[Wave].Title; } }
+    public string WaveDialogue { get { return m_waves[Wave].Dialogue; } }
 
     int m_currentIteration = 0;
 
@@ -18,11 +23,17 @@ public class HavocInc : Singleton<HavocInc>
         if (FindObjectsOfType<HavocInc>(true).Length > 1)
         {
             Destroy(gameObject);
+            return;
         }
         DontDestroyOnLoad(gameObject);
 
         CreateTester();
         BeginTest();
+    }
+
+    private void Start()
+    {
+        HavocNarrative.Instance.PlayTitle(true);
     }
 
     public void CreateTester(bool assignPrototype = true, bool demo = false)
@@ -62,4 +73,11 @@ public class HavocInc : Singleton<HavocInc>
     {
         CurrentTester.StartTesting();
     }
+
+    public void ResetWaves()
+    {
+        m_currentIteration = 0;
+    }
+
+
 }

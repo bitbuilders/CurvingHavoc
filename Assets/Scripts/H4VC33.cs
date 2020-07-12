@@ -44,6 +44,7 @@ public class H4VC33 : MonoBehaviour
     public int Level { get; set; }
     public int MaxLevel { get; set; } = 20;
     public bool IsWeak { get; private set; } = false;
+    public bool IsAlive { get { return Power > 0.0f; } }
 
     public float Spin { get { return GetValueFromRange(m_minSpin, m_maxSpin); } }
     public float Force { get { return GetValueFromRange(m_minForce, m_maxForce) + BonusForce; } }
@@ -144,6 +145,8 @@ public class H4VC33 : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (Power <= 0.0f) return;
+
         if (collision.gameObject == Owner.gameObject)
         {
             if (IsWeak)
@@ -176,7 +179,7 @@ public class H4VC33 : MonoBehaviour
     public void Throw(Vector2 dir, float force, float bonusForceDuration, float bonusForceDecayTime, float colliderDelay)
     {
         BonusForce = force;
-        BonusSpin = 2.0f;
+        BonusSpin = 1.5f;
         m_rigidBody2D.velocity = dir * Force;
         m_activeTime = m_nextDeactivation;
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("DXT3R"), LayerMask.NameToLayer("H4VC33"), true);

@@ -7,6 +7,7 @@ public class HavocController : MonoBehaviour
     [Header("Dash")]
     [SerializeField, Range(0.0f, 10.0f)] float m_dashDistance = 2.0f;
     [SerializeField, Range(0.0f, 10.0f)] float m_dashTime = 0.5f;
+    [SerializeField, Range(0.0f, 10.0f)] float m_dashCooldown = 0.5f;
 
     [Header("Throw"), Space(5)]
     [SerializeField, Range(0.0f, 20.0f)] float m_maxCharge = 5.0f;
@@ -25,7 +26,7 @@ public class HavocController : MonoBehaviour
             float chargeMax = m_maxCharge * m_maxForceThreshold;
             if (chargeMax == 0.0f)
             {
-                chargeMax = float.MinValue;
+                return 0.0f;
             }
             return Mathf.Clamp01(m_throwTime / chargeMax);
         }
@@ -35,6 +36,7 @@ public class HavocController : MonoBehaviour
     HavocMovement m_havocMovement = null;
     HavocAnimator m_havocAnimator = null;
     float m_throwTime = 0.0f;
+    float m_lastDashTime = float.MinValue;
     bool m_thrown = false;
     bool m_canDashFromCharge = false;
     bool m_canThrowFromCharge = false;
