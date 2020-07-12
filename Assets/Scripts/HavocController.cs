@@ -18,6 +18,8 @@ public class HavocController : MonoBehaviour
     [SerializeField, Range(0.0f, 10.0f)] float m_throwLinger = 1.5f;
     [SerializeField, Range(0.0f, 10.0f)] float m_throwDecay = 1.5f;
     [SerializeField, Range(0.0f, 30.0f)] float m_mercyThrow = 12.0f;
+    [SerializeField] AudioClip m_throwSound = null;
+    [SerializeField] AudioClip m_slideSound = null;
 
     public bool IsTesting { get; set; }
     public float ThrowPower 
@@ -36,6 +38,7 @@ public class HavocController : MonoBehaviour
     DXT3R m_dXT3R = null;
     HavocMovement m_havocMovement = null;
     HavocAnimator m_havocAnimator = null;
+    AudioSource m_audioSource = null;
     float m_throwTime = 0.0f;
     float m_lastDashTime = -100.0f;
     float m_mercyTime = 0.0f;
@@ -48,6 +51,7 @@ public class HavocController : MonoBehaviour
         m_dXT3R = GetComponent<DXT3R>();
         m_havocMovement = GetComponent<HavocMovement>();
         m_havocAnimator = GetComponent<HavocAnimator>();
+        m_audioSource = GetComponent<AudioSource>();
         m_canDashFromCharge = true;
     }
 
@@ -70,6 +74,11 @@ public class HavocController : MonoBehaviour
                 m_havocMovement.Dash(m_dashDistance, m_dashTime);
                 m_havocAnimator.Slide(m_dashTime);
                 m_canDashFromCharge = false;
+
+                //m_audioSource.clip = m_slideSound;
+                //m_audioSource.pitch = 1.0f;
+                //m_audioSource.volume = 0.2f;
+                //m_audioSource.Play();
             }
         }
         else if (Mathf.Approximately(dashCharge, 0.0f))
@@ -134,11 +143,20 @@ public class HavocController : MonoBehaviour
         float p = random ? 0.0f : ThrowPower;
         float force = Mathf.Lerp(m_minThrowForce, m_maxThrowForce, p);
 
+        m_audioSource.clip = m_throwSound;
+        m_audioSource.pitch = 1.0f;
+        m_audioSource.volume = 0.5f;
+        m_audioSource.Play();
+
         // Need direction
         m_dXT3R.Prototype.gameObject.SetActive(true);
         m_dXT3R.Prototype.transform.position = transform.position;
 
-        Vector2 dir = (random) ? Random.insideUnitCircle.normalized : HavocNavigator.Instance.CurrentDir;
+        Vector2 dir = (random) ? Random.insideUnitCircle.normalized : HavocNavigator.Instance.CurrentDir.normalized;
+        if (dir == Vector2.zero)
+        {
+            dir = Vector2.up;
+        }
         m_dXT3R.Prototype.Throw(dir, force, m_throwLinger, m_throwDecay, 0.1f);
     }
 }

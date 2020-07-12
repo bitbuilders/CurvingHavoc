@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01e5ba157083db643bea775b409b0474, type: 3}
   m_Name: Wave 2
   m_EditorClassIdentifier: 
-  Title: Practice
+  Title: Skill Improvement
   Dialogue: 'Interesting...
 
     I didn''t expect the boomerang to go rogue. Let''s

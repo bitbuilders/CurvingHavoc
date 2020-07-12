@@ -16,6 +16,7 @@ public class HavocFlamer : MonoBehaviour
 
     public bool Flaming { get; private set; }
 
+    AudioSource m_fireSound = null;
     float m_nextCD = 0.0f;
     float m_currentTime = 0.0f;
     float m_lastTime = 0.0f;
@@ -26,6 +27,7 @@ public class HavocFlamer : MonoBehaviour
         if (HavocInc.Instance.Wave >= m_wave)
         {
             m_nextCD = Random.Range(m_minCooldown, m_maxCooldown);
+            m_fireSound = GetComponent<AudioSource>();
         }
         else
         {
@@ -43,6 +45,7 @@ public class HavocFlamer : MonoBehaviour
                 Flaming = true;
                 StartCoroutine(DelayLight(true));
                 m_flameParticles.Play(true);
+                m_fireSound.Play();
                 // FLAME ON
             }
 
@@ -54,6 +57,7 @@ public class HavocFlamer : MonoBehaviour
                 Flaming = false;
                 StartCoroutine(DelayLight(false));
                 m_flameParticles.Stop(true);
+                m_fireSound.Stop();
                 // FLAME OFF
             }
         }

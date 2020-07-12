@@ -34,11 +34,12 @@ public class HavocInc : Singleton<HavocInc>
             return;
         }
         DontDestroyOnLoad(gameObject);
-        m_currentIteration = 0;
+        //m_currentIteration = 3;
         SceneManager.sceneLoaded += OnSceneLoad;
 
         m_currentIteration++;
         CreateTester();
+        //CurrentPrototype.Lifetime = 0.0f;
     }
 
     private void Start()
@@ -135,6 +136,8 @@ public class HavocInc : Singleton<HavocInc>
         float tintTime = 1.0f;
         HavocCanvas.Instance.FadeTint(true, tintTime, null);
 
+        StartCoroutine(FadeVolume());
+
         yield return new WaitForSeconds(tintTime + 0.5f);
 
         SceneManager.LoadScene(0, LoadSceneMode.Single);
@@ -146,9 +149,11 @@ public class HavocInc : Singleton<HavocInc>
         HavocCanvas.Instance.FadeTint(true, tintTime, null);
         m_currentIteration++;
 
+        StartCoroutine(FadeVolume());
+
         yield return new WaitForSeconds(tintTime + 0.5f);
 
-        if (Wave >= m_waves.Count - 1)
+        if (Wave >= m_waves.Count)
         {
             SceneManager.LoadScene(1, LoadSceneMode.Single);
             SceneManager.sceneLoaded -= OnSceneLoad;
@@ -158,6 +163,21 @@ public class HavocInc : Singleton<HavocInc>
         {
             SceneManager.LoadScene(0, LoadSceneMode.Single);
         }
+    }
+
+    IEnumerator FadeVolume()
+    {
+        AudioSource audio = GameObject.FindGameObjectWithTag("Music").GetComponent<AudioSource>();
+        float startVol = audio.volume;
+        float time = 0.5f;
+        for (float i = 0.0f; i < time; i += Time.deltaTime)
+        {
+            float a = 1.0f - i / time;
+            audio.volume = startVol * a;
+            yield return null;
+        }
+
+        audio.volume = 0.0f;
     }
 
     void NewTester()

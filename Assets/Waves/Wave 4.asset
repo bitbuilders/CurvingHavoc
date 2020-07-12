@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01e5ba157083db643bea775b409b0474, type: 3}
   m_Name: Wave 4
   m_EditorClassIdentifier: 
-  Title: Exponential
+  Title: Exponential Advancements
   Dialogue: 'Wait... why are you still here?
 
     You need to get out of here now!'

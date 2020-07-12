@@ -10,7 +10,7 @@ public class HavocNavigator : Singleton<HavocNavigator>
     [SerializeField] GameObject m_head = null;
     [SerializeField] GameObject m_line = null;
 
-    public Vector2 Dir { get; set; }
+    public Vector2 Dir { get; set; } = Vector2.up;
     public Vector2 CurrentDir { get; set; }
     public float Power { get; set; }
 
@@ -50,9 +50,9 @@ public class HavocNavigator : Singleton<HavocNavigator>
         }
 
         Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        float horiz = Input.GetAxisRaw("Look_Horizontal");
-        float vert = Input.GetAxisRaw("Look_Vertical");
-        float vertPS4 = Input.GetAxisRaw("Look_Horizontal_PS4");
+        float horiz = Input.GetAxis("Look_Horizontal");
+        float vert = Input.GetAxis("Look_Vertical");
+        float vertPS4 = Input.GetAxis("Look_Horizontal_PS4");
         if (Mathf.Approximately(vert, 0.0f))
         {
             vert = vertPS4;

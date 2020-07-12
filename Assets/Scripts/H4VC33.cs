@@ -53,6 +53,7 @@ public class H4VC33 : MonoBehaviour
 
 
     Animator m_animator = null;
+    AudioSource m_hitSound = null;
     Rigidbody2D m_rigidBody2D = null;
     PolygonCollider2D m_collider = null;
     Coroutine m_bounceForceRoutine = null;
@@ -69,6 +70,7 @@ public class H4VC33 : MonoBehaviour
     {
         Owner = FindObjectOfType<DXT3R>();
         m_animator = GetComponentInChildren<Animator>();
+        m_hitSound = GetComponent<AudioSource>();
         m_rigidBody2D = GetComponent<Rigidbody2D>();
         m_collider = GetComponentInChildren<PolygonCollider2D>();
 
@@ -184,6 +186,10 @@ public class H4VC33 : MonoBehaviour
                     }
                 }
             }
+        }
+        else
+        {
+            m_hitSound.Play();
         }
     }
 

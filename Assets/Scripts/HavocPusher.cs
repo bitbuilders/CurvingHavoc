@@ -13,6 +13,7 @@ public class HavocPusher : MonoBehaviour
     [SerializeField, Range(0.0f, 50.0f)] float m_cooldown = 1.0f;
 
     Animator m_animator = null;
+    AudioSource m_pushSound = null;
     float m_lastPush = -100.0f;
 
     void Start()
@@ -20,6 +21,7 @@ public class HavocPusher : MonoBehaviour
         if (HavocInc.Instance.Wave >= m_wave)
         {
             m_animator = GetComponent<Animator>();
+            m_pushSound = GetComponent<AudioSource>();
         }
         else
         {
@@ -78,6 +80,8 @@ public class HavocPusher : MonoBehaviour
         m_animator.SetTrigger("Push");
         m_trigger.enabled = false;
         StartCoroutine(Reset());
+        m_pushSound.Play();
+        HavocCamera.Instance.ShakeScreen(0.5f);
     }
 
     IEnumerator Reset()

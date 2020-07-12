@@ -6,6 +6,7 @@ public class DXT3R : MonoBehaviour
 {
     [SerializeField, Range(0, 10)] int m_lives = 1;
     [SerializeField, Range(0.0f, 20.0f)] float m_deathKnockback = 5.0f;
+    [SerializeField] AudioClip m_dieSound = null;
 
     public H4VC33 Prototype { get; set; }
     public Color DeathColor { get; set; } = Color.white;
@@ -14,11 +15,13 @@ public class DXT3R : MonoBehaviour
 
     HavocController m_havocController = null;
     HavocMovement m_havocMovement = null;
+    AudioSource m_audioSource = null;
 
     private void Awake()
     {
         m_havocController = GetComponent<HavocController>();
         m_havocMovement = GetComponent<HavocMovement>();
+        m_audioSource = GetComponent<AudioSource>();
         Lives = m_lives;
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("DXT3R"), LayerMask.NameToLayer("H4VC33"), false);
     }
@@ -42,6 +45,9 @@ public class DXT3R : MonoBehaviour
         GetComponent<Rigidbody2D>().AddForce(dir.normalized * m_deathKnockback, ForceMode2D.Impulse);
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("DXT3R"), LayerMask.NameToLayer("H4VC33"), true);
         StartCoroutine(FadeOutOfExistence());
+
+        m_audioSource.clip = m_dieSound;
+        m_audioSource.Play();
     }
 
     IEnumerator FadeOutOfExistence()

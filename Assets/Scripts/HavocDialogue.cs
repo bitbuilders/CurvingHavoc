@@ -12,14 +12,18 @@ public class HavocDialogue : MonoBehaviour
     [SerializeField] AnimationCurve m_intro = null;
     [SerializeField] AnimationCurve m_outro = null;
 
+    AudioSource m_announcerSound = null;
+
     private void Awake()
     {
         SetPosition(GetComponent<RectTransform>().rect.height);
+        m_announcerSound = GetComponent<AudioSource>();
     }
 
     public void Show()
     {
         StartCoroutine(Move(true, m_introTime, m_intro));
+        m_announcerSound.Play();
     }
 
     public void Hide()
